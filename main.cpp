@@ -279,10 +279,10 @@ int main(int argc, char** argv) {
             }
         }
 
-        chip8.cycle();
+        for (int i = 0; i < 3; ++i) {
+            chip8.cycle();
+        }
         render(renderer, chip8.display);
-        
-        SDL_Delay(16); // ~60 FPS
     }
     
     SDL_DestroyRenderer(renderer);
