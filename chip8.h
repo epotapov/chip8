@@ -11,6 +11,7 @@
 
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
+#define SCALE 20
 
 static constexpr std::array<uint8_t, FONT_SIZE> fontset = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -36,7 +37,6 @@ struct Chip8 {
     ~Chip8() = default;
 
     void readOpcode();
-
     void cycle();
 
     void OP_0NNN();
@@ -79,12 +79,12 @@ struct Chip8 {
     std::array<uint8_t, 16> V{};
     uint16_t index = 0;
     uint16_t pc = 0x200;
-    std::array<bool, 64 * 32> display{};
+    std::array<bool, DISPLAY_WIDTH * DISPLAY_HEIGHT> display{};
     uint8_t delayTimer = 0;
     uint8_t soundTimer = 0;
     std::array<uint16_t, 16> stack{};
     uint8_t sp = 0;
-    uint8_t opcode = 0;
+    uint16_t opcode = 0;
     std::array<bool, 16> keys{};
     std::mt19937 rng;
     std::uniform_int_distribution<uint8_t> dist;
