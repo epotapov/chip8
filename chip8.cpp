@@ -184,6 +184,7 @@ void Chip8::OP_8XY1() {
     uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
     V[reg1] |= V[reg2];
+    V[0xf] = 0;
 }
 
 void Chip8::OP_8XY2() {
@@ -191,6 +192,7 @@ void Chip8::OP_8XY2() {
     uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
     V[reg1] &= V[reg2];
+    V[0xf] = 0;
 }
 
 void Chip8::OP_8XY3() {
@@ -198,6 +200,7 @@ void Chip8::OP_8XY3() {
     uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
     V[reg1] ^= V[reg2];
+    V[0xf] = 0;
 }
 
 void Chip8::OP_8XY4() {
@@ -206,56 +209,70 @@ void Chip8::OP_8XY4() {
 
     uint16_t total = V[reg1] + V[reg2];
 
+    V[reg1] = total & 0xff;
+
     if (total > 255) {
         V[0xf] = 1;
     }
     else {
         V[0xf] = 0;
     }
-
-    V[reg1] += V[reg2];
 }
 
 void Chip8::OP_8XY5() {
     uint8_t reg1 = (opcode & 0x0f00) >> 8;
     uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
-    if (V[reg1] > V[reg2]) {
-        V[0xf] = 1;
+    uint16_t total = V[reg1] - V[reg2];
+
+    uint8_t carry;
+    if (V[reg1] >= V[reg2]) {
+        carry = 1;
     }
     else {
-        V[0xf] = 0;
+        carry = 0;
     }
 
-    V[reg1] -= V[reg2];
+    V[reg1] = total & 0xff;
+    V[0xf] = carry;
 }
 
 void Chip8::OP_8XY6() {
-    uint8_t reg = (opcode & 0x0f00) >> 8;
+    uint8_t reg1 = (opcode & 0x0f00) >> 8;
+    uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
-    V[0xf] = V[reg] & 0x1;
-    V[reg] >>= 1;
+    V[reg1] = V[reg2];
+    uint8_t carry = V[reg1] & 0x01;
+    V[reg1] >>= 1;
+    V[0xf] = carry & 0x1;
 }
 
 void Chip8::OP_8XY7() {
     uint8_t reg1 = (opcode & 0x0f00) >> 8;
     uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
-    if (V[reg2] > V[reg1]) {
-        V[0xf] = 1;
+    uint16_t total = V[reg2] - V[reg1];
+
+    uint8_t carry;
+    if (V[reg2] >= V[reg1]) {
+        carry = 1;
     }
     else {
-        V[0xf] = 0;
+        carry = 0;
     }
 
-    V[reg1] = V[reg2] - V[reg1];
+    V[reg1] = total & 0xff;
+    V[0xf] = carry;
 }
 
 void Chip8::OP_8XYE() {
-    uint8_t reg = (opcode & 0x0f00) >> 8;
+    uint8_t reg1 = (opcode & 0x0f00) >> 8;
+    uint8_t reg2 = (opcode & 0x00f0) >> 4;
 
-    V[0xf] = (V[reg] & 0x80) >> 7;
-    V[reg] <<= 1;
+    V[reg1] = V[reg2];
+    uint8_t carry = (V[reg1] & 0x80) >> 7;
+    V[reg1] <<= 1;
+    V[0xf] = carry;
 }
 
 void Chip8::OP_9XY0() {
@@ -403,8 +420,9 @@ void Chip8::OP_FX55() {
     uint8_t reg = (opcode & 0x0f00) >> 8;
 
     for (uint8_t i = 0; i <= reg; ++i) {
-        memory[index + i] = V[i]; 
+        memory[index + i] = V[i];
     }
+    index += reg + 1;
 }
 
 void Chip8::OP_FX65() {
@@ -413,4 +431,5 @@ void Chip8::OP_FX65() {
     for (uint8_t i = 0; i <= reg; ++i) {
         V[i] = memory[index + i];
     }
+    index += reg + 1;
 }
