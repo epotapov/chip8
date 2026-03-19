@@ -5,8 +5,8 @@ SRCS = main.cpp chip8.cpp
 OBJS = $(SRCS:.cpp=.o)
 BUILD = build/
 
-SDL2_CFLAGS := $(shell sdl2-config --cflags)
-SDL2_LIBS   := $(shell sdl2-config --libs)
+SDL2_CFLAGS := -I/usr/include/SDL2 -D_REENTRANT
+SDL2_LIBS   := -lSDL2
 
 all: $(BUILD) $(TARGET)
 
